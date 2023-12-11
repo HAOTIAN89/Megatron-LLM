@@ -1,0 +1,1 @@
+python ../make_scripts/do_finetuning.py --checkpoint=meditron --size 7 --run_name=summarizer --data /pure-mlo-scratch/make_project/data/raw/summarizer_train.jsonl --micro_batch=8 --save_interval=500 || exit 1
