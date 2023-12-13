@@ -55,13 +55,13 @@ N_DOCS = {
     "newcotpubmedqa": 200000,
     "medmixturea": 31609,
     "summarizer": 27000,
-    "generator": 27000
+    "generator1": 27000
 }
 CHECKPOINTS = {key: Path(value) for key, value in CHECKPOINTS.items()}
 # OUT_ROOT = Path("/pure-mlo-scratch/zechen/meditron/benchmarks/ft_preprocessed/tokenized/")
-OUT_ROOT = Path("/pure-mlo-scratch/make_project/data/tokenized/summarizer_train/")
+OUT_ROOT = Path("/pure-mlo-scratch/make_project/data/tokenized/generator_train/")
 # FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/alhernan/megatron-data/checkpoints/instructed/")
-FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/make_project/trial-runs/meditron-7b-summarizer/")
+FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/make_project/trial-runs/meditron-7b-generator/")
 DEFAULT_EPOCHS = 3
 DEFAULT_SEQ = 2048
 DEFAULT_LOSS_MASK = 0.0

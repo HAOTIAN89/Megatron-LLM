@@ -1,0 +1,18 @@
+import torch
+import transformers
+from transformers import LlamaForCausalLM, LlamaTokenizer
+
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=LlamaForCausalLM.from_pretrained("/pure-mlo-scratch/make_project/trial-runs/meditron-7b-summarizer/hf_checkpoint/"),
+    tokenizer=LlamaTokenizer.from_pretrained("/pure-mlo-scratch/make_project/trial-runs/meditron-7b-summarizer/hf_checkpoint/"),
+    torch_dtype=torch.bfloat16,
+    device="cuda"
+)
+prompt = """Given the provided patient-doctor dialogue, write the corresponding patient information summary in JSON format.\nMake sure to extract all the information from the dialogue into the template, but do not add any new information. \nIf a field is not mentioned, simply write \"feature\": \"None\".\n\nDoctor: Hello, how are you today?\nPatient: I'm fine, thank you.\nDoctor: I understand you are here to see me about some skin lesions you have been experiencing. Can you tell me more about it?\nPatient: Yes, I have been suffering from multiple pigmented annular papules and plaques on my face for 7 years.\nDoctor: Hmm, I see. And have these lesions been slowly progressive?\nPatient: Yes, that's correct.\nDoctor: Have you noticed any signs of self-healing?\nPatient: No, I haven't.\nDoctor: Alright. Can you tell me a bit about your physical and medical history?\nPatient: I was a normal, healthy, full-term baby and had normal physical milestones of development as a child. I have no history of recurrent infections or any other skin lesions. My parents and siblings are all normal and healthy. And I have no family history of a similar condition or other skin problems.\nDoctor: Okay, that's good to know. Can you describe the examination you had?\nPatient: The central part of my face, i.e. the malar area and nose including the ala nasi, showed scattered annular papules and plaques of different sizes ranging from 0.3 to 2 cm. The lesions were asymptomatic and symmetrically distributed on both sides of my face.\nDoctor: I see. And have you had any laboratory tests done?\nPatient: Yes, I have. The results were within normal ranges.\nDoctor: Alright. And have you had any biopsies taken from the lesions?\nPatient: Yes, multiple biopsies were taken from different lesions.\nDoctor: I see. And what was the diagnosis confirmed as?\nPatient: The diagnosis was confirmed as DSAP.\nDoctor: Okay, I understand. And what kind of treatment options were discussed?\nPatient: All physical modalities were excluded to avoid the possibility of side effects like scarring and disfigurement, as the lesions were located in the central part of my face and involved the skin overlying the nasal cartilage. We first prescribed a topical retinoic acid 0.1% cream that has keratolytic and antineoplastic effects.\nDoctor: I see. And how did the patient respond to the treatment?\nPatient: I applied the cream twice daily for 3 months without a significant response.\nDoctor: I see. And when did you present again?\nPatient: I presented again six months later.\nDoctor: And what was the picture like at that time?\nPatient: The picture was almost unchanged except for a few small changes.\nDoctor: Okay, I understand. I will have to examine you again and see if there are any other treatment options we can consider.
+"""
+
+sequences = pipeline(prompt, max_new_tokens=400, do_sample=True, top_k=20, num_return_sequences=1)
+
+for sequence in sequences:
+    print(sequence['generated_text'])
