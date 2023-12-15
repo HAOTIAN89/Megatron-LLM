@@ -57,7 +57,7 @@ def _load_checkpoint(queue, args):
     if args.bf16:
         sys.argv += ["--bf16"]
     if args.load_iteration is not None:
-        sys.argv += ["--load_iteration", args.load_iteration]
+        sys.argv += ["--load_iters", args.load_iteration]
     print("Sys argv:", sys.argv)
 
     margs = megatron.arguments.parse_args()
@@ -118,7 +118,7 @@ def _load_checkpoint(queue, args):
             model_ = [model_provider(pre_process, post_process).to(dtype)]
             margs.consumed_train_samples = 0
             margs.consumed_valid_samples = 0
-            load_checkpoint(model_, None, None, iteration=args.load_iteration)
+            load_checkpoint(model_, None, None)
             assert(len(model_) == 1)
             model_ = model_[0]
             if consumed_train_samples is not None:
