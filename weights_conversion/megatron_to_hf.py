@@ -396,8 +396,12 @@ def write_tokenizer(args: Namespace):
         special_tokens = {"additional_special_tokens": additional_special_tokens}
         if args.vocab_extra_ids_list:
             additional_special_tokens.extend(args.vocab_extra_ids_list.split(","))
+        
+        for i in range(len(additional_special_tokens)):
+            special_token = {"additional_special_tokens": [additional_special_tokens[i]]}
+            hf_tokenizer.add_special_tokens(special_tokens_dict=special_token, replace_additional_special_tokens=True)
 
-        hf_tokenizer.add_special_tokens(special_tokens_dict=special_tokens, replace_additional_special_tokens=True)
+        # hf_tokenizer.add_special_tokens(special_tokens_dict=special_tokens, replace_additional_special_tokens=True)
 
         additional_special_tokens_ids = [mt_tokenizer.vocab.get(t) for t in additional_special_tokens]
         hf_tokenizer.additional_special_tokens_ids = additional_special_tokens_ids

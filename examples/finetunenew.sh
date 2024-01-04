@@ -238,7 +238,7 @@ echo
 
 
 # finally, call finetune.py
-CUDA_DEVICE_MAX_CONNECTIONS=1 OMP_NUM_THREADS=16 torchrun $DISTRIBUTED_ARGS /mpt/Megatron-LLM/finetune.py \
+CUDA_DEVICE_MAX_CONNECTIONS=1 OMP_NUM_THREADS=16 torchrun $DISTRIBUTED_ARGS /home/haotian/Megatron-LLM/finetune.py \
        --tensor_model_parallel_size $TP \
        --pipeline_model_parallel_size $PP  \
        --load $CHECKPOINT_PATH \
