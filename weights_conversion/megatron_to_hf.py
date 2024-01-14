@@ -97,6 +97,9 @@ def write_llama_model(model_path,
     assert len(list(base_path.glob("mp_rank_*"))) == 1, "Unshard your model with checkpoint_util.py first!"
     loaded = torch.load(base_path/"mp_rank_00"/"model_optim_rng.pt", map_location="cpu")
     args = loaded['args']
+    
+    # print out the args.padded_vocab_size
+    print(f"args.padded_vocab_size: {args.padded_vocab_size}")
 
     loaded = loaded['model']['language_model']
     if 'transformer' not in loaded:  # normalize key names
@@ -558,18 +561,20 @@ def write_tokenizer(args: Namespace):
         raise RuntimeError(f"Unsupported tokenizer type: {args.tokenizer_type}")
 
     # handle special token overrides
-    for override in args.override_special_tokens:
-        try:
-            key, value = override.split("=")
-            assert key in {"bos", "cls", "eos", "mask", "pad", "sep", "unk"}
-            value = mt_tokenizer.vocab[value]
-            setattr(hf_tokenizer, f"{key}_token_id", value)
-        except ValueError:
-            warnings.warn(f"Illegal override string {override}")
-        except AssertionError:
-            warnings.warn(f"Cannot override key {key}")
-        except KeyError:
-            warnings.warn(f"Token {value} not found in megatron tokenizer")
+    for overrides in args.override_special_tokens:
+        for override in overrides.split(","):
+            try:
+                key, value = override.split("=")
+                print(f"Overriding {key} to {value}")
+                assert key in {"bos", "cls", "eos", "mask", "pad", "sep", "unk"}
+                value = mt_tokenizer.vocab[value]
+                setattr(hf_tokenizer, f"{key}_token_id", value)
+            except ValueError:
+                warnings.warn(f"Illegal override string {override}")
+            except AssertionError:
+                warnings.warn(f"Cannot override key {key}")
+            except KeyError:
+                warnings.warn(f"Token {value} not found in megatron tokenizer")
 
     print("Final HF Tokenizer configuration:")
     print(hf_tokenizer)

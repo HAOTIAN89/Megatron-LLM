@@ -63,7 +63,7 @@ CHECKPOINTS = {key: Path(value) for key, value in CHECKPOINTS.items()}
 # OUT_ROOT = Path("/pure-mlo-scratch/zechen/meditron/benchmarks/ft_preprocessed/tokenized/")
 OUT_ROOT = Path("/pure-mlo-scratch/make_project/data/tokenized/direct_trunc_train/")
 # FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/alhernan/megatron-data/checkpoints/instructed/")
-FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/make_project/trial-runs/pubmed-13b-direct-trunc/")
+FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/make_project/trial-runs/meditron-7b-direct-trunc-ex/")
 DEFAULT_EPOCHS = 3
 DEFAULT_SEQ = 2048
 DEFAULT_LOSS_MASK = 0.0
@@ -171,7 +171,7 @@ def finetune(args: Namespace, data_path: Path, val_path: Path, out: Path):
 
     tp, pp = get_parallel_levels(out)
     wandb_id = out.name.replace(f"-tp{tp}-pp{pp}", "").replace("llama-2", "llama2")
-    wandb = ["--wandb", "--wandb-project", "instruction_tuning_v3", "--wandb-id",
+    wandb = ["--wandb", "--wandb-project", "instruction_tuning_v4", "--wandb-id",
              wandb_id]
     model_name = "llama" if args.checkpoint == "pmc" else "llama2"
     cmd = ["bash", "/home/haotian/Megatron-LLM/examples/finetunenew.sh", model_name, "--instruct", "--micro-batch", 

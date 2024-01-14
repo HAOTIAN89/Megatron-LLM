@@ -1,1 +1,1 @@
-python ../make_scripts/do_finetuning.py --checkpoint=ex1pubmedreplay --size 13 --run_name=direct-trunc --data /pure-mlo-scratch/make_project/data/raw/direct_trunc_train.jsonl --micro_batch=8 --save_interval=500 || exit 1
+python ../make_scripts/do_finetuning.py --checkpoint=meditron --size 7 --run_name=direct-trunc-ex --data /pure-mlo-scratch/make_project/data/raw/direct_trunc_train.jsonl --micro_batch=4 --save_interval=500 || exit 1
