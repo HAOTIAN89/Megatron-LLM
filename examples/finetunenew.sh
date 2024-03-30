@@ -15,7 +15,7 @@ WANDB=1
 INSTRUCT=0
 CHECKPOINT_PATH=none
 DATA=none
-WANDB_PROJ=baseline
+WANDB_PROJ=meditron-7B-finetuning
 WANDB_ID=1
 WANDB_ENTITY=make-project
 ITERS=1000
@@ -31,7 +31,7 @@ IT=none
 HELP_STR="[--rank=$RANK] [--size=$SIZE] [--tp=$TP] [--pp=$PP] [--gpus=$GPUS_PER_NODE] \
 [--micro-batch=$MICRO_BATCH] [--global-batch=$GLOBAL_BATCH] [--nodes=$N_NODES] \
 [--addr=$ADDR] [--wandb] [--instruct] [--checkpoint=...] [--data=...] [--iters=$ITERS] \
-[--wandb-proj=none] [--wandb-id=none] [--wandb-entity=none] [--seq-len=...] \
+[--wandb-proj=$WANDB_PROJ] [--wandb-id=none] [--wandb-entity=none] [--seq-len=...] \
 [--val-path=none] [--out=...] [--lr=lr minlr] [--loss-mask=$LOSS_MASK]
 [--save-interval=$SAVE_INTERVAL] [--it=$IT] [--help]"
 
