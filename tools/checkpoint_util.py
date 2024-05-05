@@ -121,6 +121,8 @@ def main():
                         help='Directory to save model checkpoint to')
     parser.add_argument('--max_queue_size', type=int, default=50,
                         help='Maximum number of tensors in the queue')
+    parser.add_argument('--true_vocab_size', type=int, default=32000,
+                        help='True vocab size of the model')
     parser.add_argument('--no_checking', action='store_false',
                         help='Do not perform checking on the name and ordering of weights',
                         dest='checking')

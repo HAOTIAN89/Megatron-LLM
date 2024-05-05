@@ -179,7 +179,7 @@ COMMON_ARGS="--use_flash_attn --no_bias_gelu_fusion
 	     --lr_decay_style cosine --lr_warmup_fraction 0.1 --lr $LR --min_lr $MIN_LR
 	     --weight_decay 0.1 --sequence_parallel --recompute_granularity selective
 	     --log_timers_to_tensorboard --scalar_loss_mask=$LOSS_MASK
-	     --rope_scaling_factor 1.0"
+	     --rope_scaling_factor 3.0"
 
 if [[ $INSTRUCT = 1 ]]; then
 	COMMON_ARGS="$COMMON_ARGS --variable_seq_lengths --data_type instruction --metrics all"

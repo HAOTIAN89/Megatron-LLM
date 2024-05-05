@@ -35,6 +35,8 @@ def build_tokenizer(args):
                                             vocab_extra_ids_list=args.vocab_extra_ids_list, new_tokens=args.new_tokens)
     elif args.tokenizer_type == 'FalconTokenizer':
         tokenizer = _FalconTokenizer(vocab_extra_ids_list=args.vocab_extra_ids_list, new_tokens=args.new_tokens)
+    elif args.tokenizer_type == 'TiktokenTokenizer':
+        tokenizer = _TiktokenTokenizer(args.vocab_file)
     else:
         raise NotImplementedError('{} tokenizer is not '
                                   'implemented.'.format(args.tokenizer_type))
@@ -501,3 +503,141 @@ class _SentencePieceTokenizer(AbstractTokenizer):
     def additional_special_tokens_ids(self):
         return [self.vocab[k] for k in self._t5_tokens]
 
+
+class _TiktokenTokenizer(AbstractTokenizer):
+    """TiktokenTokenizer-Megatron wrapper"""
+    
+    def __init__(self, model_file):
+        name = 'TiktokenTokenizer'
+        super().__init__(name)
+
+        import tiktoken
+        from tiktoken.load import load_tiktoken_bpe
+        from pathlib import Path
+        
+        self.mergeable_ranks = load_tiktoken_bpe(model_file)
+        num_reserved_special_tokens = 256
+        pat_str = r"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+"
+        special_tokens = [
+            "<|begin_of_text|>",
+            "<|end_of_text|>",
+            "<|reserved_special_token_0|>",   # pad
+            "<|reserved_special_token_1|>",   # cls
+            "<|reserved_special_token_2|>",   # sep
+            "<|reserved_special_token_3|>",   # mask
+            "<|start_header_id|>",
+            "<|end_header_id|>",
+            "<|reserved_special_token_4|>",
+            "<|eot_id|>",  # end of turn
+        ] + [
+            f"<|reserved_special_token_{i}|>"
+            for i in range(5, num_reserved_special_tokens - 5)
+        ]
+        
+        num_base_tokens = len(self.mergeable_ranks)
+        
+        self.special_tokens = {
+            token: num_base_tokens + i for i, token in enumerate(special_tokens)
+        }
+        
+        self._tokenizer = tiktoken.Encoding(
+            name=Path(model_file).name,
+            pat_str=pat_str,
+            mergeable_ranks=self.mergeable_ranks,
+            special_tokens=self.special_tokens
+        )
+
+        self.n_words: int = self._tokenizer.n_vocab
+        self.bos_id: int = self.special_tokens["<|begin_of_text|>"]
+        self.eos_id: int = self.special_tokens["<|end_of_text|>"]
+        self.pad_id: int = self.special_tokens["<|reserved_special_token_0|>"]
+        self.cls_id: int = self.special_tokens["<|reserved_special_token_1|>"]
+        self.sep_id: int = self.special_tokens["<|reserved_special_token_2|>"]
+        self.mask_id: int = self.special_tokens["<|reserved_special_token_3|>"]
+        self.stop_tokens = {
+            self.special_tokens["<|end_of_text|>"],
+            self.special_tokens["<|eot_id|>"],
+        }
+        
+        self._vocab = {}
+        self._inv_vocab = {}
+        
+        self._special_tokens = {}
+        self._inv_special_tokens = {}
+        
+        for i in range(self.n_words):
+            t = self._tokenizer.decode_single_token_bytes(i)  # Warning: although .decode() can be applied to single tokens, beware that it can be lossy for tokens that aren't on utf-8 boundaries.
+            self._inv_vocab[i] = t
+            self._vocab[t] = i
+            if i % 10000 == 0:
+                print(f"Loaded {i} tokens")
+            if i >= len(self._tokenizer.token_byte_values()):
+                self._special_tokens[t] = self._vocab[t]
+                self._inv_special_tokens[self._vocab[t]] = t
+                
+    @property
+    def vocab_size(self):
+        return len(self._vocab)
+    
+    @property
+    def vocab(self):
+        return self._vocab
+
+    @property
+    def inv_vocab(self):
+        return self._inv_vocab
+    
+    def tokenize(self, text):
+        return self._tokenizer.encode(text)
+        
+    def detokenize(self, token_ids):
+        return self._tokenizer.decode(token_ids)
+        
+    @property
+    def cls(self):
+        return self.cls_id
+
+    @property
+    def sep(self):
+        return self.sep_id
+
+    @property
+    def pad(self):
+        return self.pad_id
+    
+    @property
+    def bos_token_id(self):
+        return self.bos_id
+    
+    @property
+    def bos(self):
+        return self.bos_id
+    
+    @property
+    def eod(self):
+        return self.eos_id
+
+    @property
+    def eos_token_id(self):
+        return self.eos_id
+
+    @property
+    def eos(self):
+        return self.eos_id
+
+    @property
+    def mask(self):
+        return self.mask_id
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
+        
+        
+        
