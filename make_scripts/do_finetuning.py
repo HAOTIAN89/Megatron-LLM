@@ -39,7 +39,9 @@ CHECKPOINTS = {
     ("guidelines", 70): "/pure-mlo-scratch/trial-runs/guidelines-70b/checkpoints/llama2-70b-tp8-pp8",
     
     ("meditron", 7): "/pure-mlo-scratch/trial-runs/meditron-7b/checkpoints/llama2-7b-tp4-pp1",
-    ("meditron", 70): "/pure-mlo-scratch/trial-runs/meditron-70b/checkpoints/llama2-70b-tp8-pp8"
+    ("meditron", 70): "/pure-mlo-scratch/trial-runs/meditron-70b/checkpoints/llama2-70b-tp8-pp8",
+    
+    ("meditron-7B-BHC-extend", 7): "/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-BHC-v2/llama2-7b-tp4-pp1",
 }
 
 N_DOCS = {
@@ -64,14 +66,29 @@ N_DOCS = {
     "direct-trunc": 27000,
     "bhc-2k": 31800,
     "di-2k": 48800,
+    "bhc-2k-v2": 31800,
+    "di-2k-v2": 51600,
+    "di-2k-v2.1": 58300,
+    "bhc-2k-v3": 15400,
+    "di-2k-v3": 17700,
+    "bhc-6k-v4": 67100,
+    "di-6k-v4": 68600,
+    "bhc-2k-v4": 16500,
+    "di-2k-v4": 48400,
+    "bhc-8k-v5": 68200,
+    "di-8k-v5": 68700,
+    "bhc-6k-v5": 66400,
+    "di-6k-v5": 68500,
+    "bhc-6k-v6": 38300,
+    "di-6k-v6": 39400, 
 }
 CHECKPOINTS = {key: Path(value) for key, value in CHECKPOINTS.items()}
 # OUT_ROOT = Path("/pure-mlo-scratch/zechen/meditron/benchmarks/ft_preprocessed/tokenized/")
 OUT_ROOT = Path("/pure-mlo-scratch/make_project/spring2024/data/tokenized/")
 # FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/alhernan/megatron-data/checkpoints/instructed/")
-FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-BHC/")
+FINAL_CHECKPOINT_ROOT = Path("/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-BHC-v6-6k/")
 DEFAULT_EPOCHS = 3
-DEFAULT_SEQ = 2048
+DEFAULT_SEQ = 6144
 DEFAULT_LOSS_MASK = 0.0
 
 @contextmanager
@@ -177,7 +194,7 @@ def finetune(args: Namespace, data_path: Path, val_path: Path, out: Path):
 
     tp, pp = get_parallel_levels(out)
     wandb_id = out.name.replace(f"-tp{tp}-pp{pp}", "").replace("llama-2", "llama2")
-    wandb = ["--wandb", "--wandb-project", "Phase1stage1", "--wandb-id",
+    wandb = ["--wandb", "--wandb-project", "Phase2stage7", "--wandb-id",
              wandb_id]
     model_name = "llama" if args.checkpoint == "pmc" else "llama2"
     cmd = ["bash", "/home/haotian/Megatron-LLM/examples/finetunenew.sh", model_name, "--instruct", "--micro-batch", 
