@@ -78,6 +78,13 @@ def hf_provider(name: str, cache_dir: Optional[Path], device: str,
             f"meta-llama/Llama-2-{size}b-hf", cache_dir=cache_dir,
             **extra_kwargs
         )
+    elif name == "llama3":
+        print(f"Loading llama3 model with size {size}b")
+        print("baseline parh {cache_dir} should be a huggingface")
+        model = LlamaForCausalLM.from_pretrained(
+            f"meta-llama/Meta-Llama-3-{size}B", cache_dir=cache_dir,
+            **extra_kwargs
+        )
     elif name == "mistral":
         assert size == 7, "Mistral only supports 7B model"
         try:
@@ -95,7 +102,7 @@ def hf_provider(name: str, cache_dir: Optional[Path], device: str,
 
 
 def hf_our_provider(name: str, data_dir: Path, device: str, size: int = 7):
-    if name in {"llama", "llama2"}:
+    if name in {"llama", "llama2", "llama3"}:
         model = LlamaForCausalLM.from_pretrained(data_dir)
     else:
         raise NotImplementedError("Testing custom checkpoints supported for llama")
@@ -164,7 +171,7 @@ def main():
     else:
         print("NOTE: The given path does not look like a megatron checkpoint, "
               f"assuming it's a huggingface checkpoint instead (path={args.load})")
-        our_model = hf_our_provider(args.model_name, args.load, "cuda:0", bf16=args.bf16)
+        our_model = hf_our_provider(args.model_name, args.load, "cuda:3", bf16=args.bf16)
         our_forward = hf_forward
         args.iteration = 0
 
@@ -199,6 +206,8 @@ def extra_extra_args(parser):
         "the raw weight directory given by meta. "
         "If llama, optional: either the path to converted huggingface weights "
         "(use convert_llama_weights_to_hf.py) or the huggingface cache dir."
+        "If llama3, optional: either the huggingface cache path, or "
+        "the raw weight directory given by meta. "
     ))
     group.add_argument("--huggingface_device", default="cuda:1", dest="baseline_device",
                        help="Device to use for the baseline model")
