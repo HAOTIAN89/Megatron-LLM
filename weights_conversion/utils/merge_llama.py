@@ -93,6 +93,8 @@ def merge_hf_llama(size: int, version: int, cache_dir: Optional[Path] = None,
         model_path = f"decapoda-research/llama-{size}b-hf"
     elif model_path is None and version == 2:
         model_path = f"meta-llama/Llama-2-{size}b-hf"
+    print(f"Loading model from {model_path}")
+    print(f"Using cache_dir {cache_dir}")
     weights = LlamaForCausalLM.from_pretrained(model_path, cache_dir=cache_dir).state_dict()
     weights["tok_embeddings.weight"] = weights.pop("model.embed_tokens.weight")
     weights["norm.weight"] = weights.pop("model.norm.weight")

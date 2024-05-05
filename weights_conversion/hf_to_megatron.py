@@ -51,11 +51,11 @@ from utils.permute_qkv import permute_qkv
 from utils.merge_llama import merge_llama
 
 
-llama_s2layer = {7: 32, 13: 40, 30: 60, 34: 48, 65: 80, 70: 80}
-llama_s2heads = {7: 32, 13: 40, 30: 52, 34: 64, 65: 64, 70: 64}
-llama_s2dense = {7: 11008, 13: 13824, 30: 17920, 34: 22016, 65: 22016,
+llama_s2layer = {7: 32, 8: 32, 13: 40, 30: 60, 34: 48, 65: 80, 70: 80}
+llama_s2heads = {7: 32, 8: 32, 13: 40, 30: 52, 34: 64, 65: 64, 70: 64}
+llama_s2dense = {7: 11008, 8: 14336, 13: 13824, 30: 17920, 34: 22016, 65: 22016,
                  70: 28672}  # should be (2/3)*4*d, but it isn't exaclty that
-llama_s2hidden = {7: 4096, 13: 5120, 30: 6656, 34: 8192, 65: 8192, 70: 8192}
+llama_s2hidden = {7: 4096, 8: 4096, 13: 5120, 30: 6656, 34: 8192, 65: 8192, 70: 8192}
 
 
 def falcon_to_megatron(weights: dict, size: int) -> dict:
@@ -282,6 +282,8 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
     else:
         print("Getting llama...")
         version = 2 if "2" in model_name else 1
+        if "3" in model_name:
+            version = 3
         hf_weights, llama_source = merge_llama(size, version, root_dir=cache_dir,
                                                model_path=model_path)
 
@@ -291,8 +293,10 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
     elif model_name == "mistral":
         megatron_weights = mistral_to_megatron(hf_weights, size)
     else:
-        megatron_weights = llama_to_megatron(hf_weights, size, llama_source,
-                                             version=1 if model_name == "llama" else 2)
+        version = 2 if "2" in model_name else 1
+        if "3" in model_name:
+            version = 3
+        megatron_weights = llama_to_megatron(hf_weights, size, llama_source, version)
 
     # set args
     dtype = megatron_weights["embedding"]["word_embeddings.weight"].dtype
@@ -332,7 +336,7 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
             "rope_theta": 10000.0,
             "sliding_window_size": 4096,
         }
-    else:  # llama1, llama2, codellama
+    else:  # llama1, llama2, llama3, codellama
         args = {"num_layers": llama_s2layer[size],
                 "hidden_size": llama_s2hidden[size],
                 "num_attention_heads": llama_s2heads[size],
@@ -352,6 +356,12 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
                          "layernorm_epsilon": 1e-5})
             if size >= 34:
                 args.update({"num_attention_heads_kv": 8})
+        elif model_name == "llama3":
+            args.update({"max_position_embeddings": 8192, "seq_length": 8192,
+                         "layernorm_epsilon": 1e-5})
+            args.update({"num_attention_heads_kv": 8})
+            args.update({"tokenizer_type": "TiktokenTokenizer"})
+            args.update({"padded_vocab_size": 128256})
         elif model_name == "codellama":
             args.update({"max_position_embeddings": 16384, "seq_length": 16384,
                          "layernorm_epsilon": 1e-5, "rope_theta": 1e6})
@@ -422,8 +432,8 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
 if __name__ == "__main__":
     parser = ArgumentParser(description="Convert Huggingface llama or falcon weights to "
                                         "megatron-compatible weights")
-    parser.add_argument("model", choices={"falcon", "llama", "llama2", "codellama", "mistral"})
-    parser.add_argument("--size", default=7, choices={7, 13, 30, 34, 40, 65, 70}, type=int,
+    parser.add_argument("model", choices={"falcon", "llama", "llama2", "llama3", "codellama", "mistral"})
+    parser.add_argument("--size", default=7, choices={7, 8, 13, 30, 34, 40, 65, 70}, type=int,
                         help="The size of the model")
     parser.add_argument("--out", type=Path,
                         help="Directory to store the megatron weights (as checkpoint)")
@@ -440,6 +450,8 @@ if __name__ == "__main__":
         assert args.size in {7, 40}
     elif args.model == "llama":
         assert args.size in {7, 13, 30, 65}
+    elif args.model == "llama3":
+        assert args.size in {8, 70}
     elif args.model == "codellama":
         assert args.size in {7, 13, 34}
     elif args.model == "mistral":
