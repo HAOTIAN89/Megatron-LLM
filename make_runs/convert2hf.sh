@@ -7,8 +7,8 @@ echo "Init"
 # python ../weights_conversion/megatron_to_hf.py --input_dir=/pure-mlo-scratch/make_project/trial-runs/pubmed-13b-generator/llama-2-13b-tp1-pp1-ex1pubmedreplay-generator1 --output_dir=/pure-mlo-scratch/make_project/trial-runs/pubmed-13b-generator/hf_checkpoint_new --vocab_extra_ids_list="[bib_ref],[/bib_ref],[fig_ref],[/fig_ref],[bib],[/bib],[fig],[/fig],[table],[/table],[formula],[/formula],<|im_start|>,<|im_end|>" --override_special_tokens='bos=<|im_start|>','eos=<|im_end|>'
 # python ../weights_conversion/megatron_to_hf.py --input_dir=/pure-mlo-scratch/make_project/trial-runs/pubmed-13b-summarizer/llama-2-13b-tp1-pp1-ex1pubmedreplay-summarizer --output_dir=/pure-mlo-scratch/make_project/trial-runs/pubmed-13b-summarizer/hf_checkpoint_new_new --vocab_extra_ids_list="[bib_ref],[/bib_ref],[fig_ref],[/fig_ref],[bib],[/bib],[fig],[/fig],[table],[/table],[formula],[/formula],<|im_start|>,<|im_end|>" --override_special_tokens='bos=<|im_start|>','eos=<|im_end|>'
 python ../weights_conversion/megatron_to_hf.py \
-    --input_dir=/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-BHC/llama-2-7b-tp1-pp1-meditron-bhc-2k \
-    --output_dir=/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-BHC/hf_checkpoint \
+    --input_dir=/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-DI-v5-6k/llama-2-7b-tp1-pp1-meditron-di-6k-v5 \
+    --output_dir=/pure-mlo-scratch/make_project/spring2024/trial-runs/meditron-7B-DI-v5-6k/hf_checkpoint \
     --cache_dir=/pure-mlo-scratch/alhernan/huggingface_cache/ \
     --vocab_file=/pure-mlo-scratch/llama2/llama2-7b-hf/tokenizer.model \
     --vocab_extra_ids_list="[bib_ref],[/bib_ref],[fig_ref],[/fig_ref],[bib],[/bib],[fig],[/fig],[table],[/table],[formula],[/formula],<|im_start|>,<|im_end|>" \
